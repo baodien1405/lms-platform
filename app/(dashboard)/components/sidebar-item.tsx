@@ -18,13 +18,9 @@ export const SidebarItem = ({ icon: Icon, label, href }: SidebarItemProps) => {
   const isActive =
     (pathname === '/' && href === '/') || pathname === href || pathname?.startsWith(`${href}/`)
 
-  const onClick = () => {
-    router.push(href)
-  }
-
   return (
     <button
-      onClick={onClick}
+      onClick={() => router.push(href)}
       type="button"
       className={cn(
         'flex items-center gap-x-2 pl-6 text-sm font-[500] text-slate-500 transition-all hover:bg-slate-300/20 hover:text-slate-600',
