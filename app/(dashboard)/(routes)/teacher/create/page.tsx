@@ -29,7 +29,9 @@ export default function CreatePage() {
 
   const { isSubmitting, isValid } = form.formState
 
-  const handleFormSubmit = () => {}
+  const handleFormSubmit = (formValues: any) => {
+    console.log('🚀 ~ handleFormSubmit ~ formValues:', formValues)
+  }
 
   return (
     <div className="mx-auto flex h-full max-w-5xl p-6 md:items-center md:justify-center">
