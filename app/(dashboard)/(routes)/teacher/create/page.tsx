@@ -15,6 +15,9 @@ import * as z from 'zod'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { useMutation } from '@tanstack/react-query'
+import { courseApi } from '@/api-client'
+import { toast } from 'react-toastify'
 
 export default function CreatePage() {
   const formSchema = z.object({
@@ -27,10 +30,21 @@ export default function CreatePage() {
     resolver: zodResolver(formSchema)
   })
 
+  const createCourseMutation = useMutation({
+    mutationFn: (title: string) => courseApi.create({ title })
+  })
+
   const { isSubmitting, isValid } = form.formState
 
-  const handleFormSubmit = (formValues: any) => {
-    console.log('🚀 ~ handleFormSubmit ~ formValues:', formValues)
+  const handleFormSubmit = (formValues: z.infer<typeof formSchema>) => {
+    createCourseMutation.mutate(formValues.title, {
+      onSuccess: () => {
+        toast.success('Create course successfully')
+      },
+      onError: (error: any) => {
+        toast.error(error)
+      }
+    })
   }
 
   return (
