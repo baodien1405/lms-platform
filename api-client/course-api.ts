@@ -6,5 +6,10 @@ export const courseApi = {
     return axiosClient.post('/api/courses', {
       title
     })
+  },
+  update(id: string, title: string): Promise<any> {
+    return axiosClient.patch(`/api/courses/${id}`, {
+      title
+    })
   }
 }
