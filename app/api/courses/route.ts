@@ -20,7 +20,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(course)
   } catch (error) {
-    console.log('[COURSES]', error)
     return new NextResponse('Internal Error', { status: 500 })
   }
 }

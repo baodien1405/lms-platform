@@ -1,5 +1,7 @@
 'use client'
 
+import { toast } from 'react-toastify'
+import { useRouter } from 'next/navigation'
 import {
   Form,
   FormControl,
@@ -12,14 +14,15 @@ import {
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { Input } from '@/components/ui/input'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
+
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { courseApi } from '@/api-client'
-import { toast } from 'react-toastify'
 
 export default function CreatePage() {
+  const router = useRouter()
   const formSchema = z.object({
     title: z.string().min(1, {
       message: 'Title is required'
@@ -38,7 +41,8 @@ export default function CreatePage() {
 
   const handleFormSubmit = (formValues: z.infer<typeof formSchema>) => {
     createCourseMutation.mutate(formValues.title, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        router.push(`/teacher/courses/${data.id}`)
         toast.success('Create course successfully')
       },
       onError: (error: any) => {
