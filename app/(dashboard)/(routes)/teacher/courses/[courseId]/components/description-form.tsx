@@ -7,28 +7,27 @@ import { Pencil } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
+import { useMutation } from '@tanstack/react-query'
 import { Course } from '@prisma/client'
 
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useMutation } from '@tanstack/react-query'
 import { courseApi } from '@/api-client'
+import { cn } from '@/lib/utils'
+import { Textarea } from '@/components/ui/textarea'
 
-interface TitleFormProps {
-  initialData: {
-    title: string
-  }
+interface DescriptionFormProps {
+  initialData: Course
   courseId: string
 }
 
 const formSchema = z.object({
-  title: z.string().min(1, {
-    message: 'Title is required'
+  description: z.string().min(1, {
+    message: 'Description is required'
   })
 })
 
-export const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
+export const DescriptionForm = ({ initialData, courseId }: DescriptionFormProps) => {
   const [isEditing, setIsEditing] = useState(false)
 
   const toggleEdit = () => setIsEditing((current) => !current)
@@ -37,7 +36,9 @@ export const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData
+    defaultValues: {
+      description: initialData?.description || ''
+    }
   })
 
   const updateCourseMutation = useMutation({
@@ -74,19 +75,23 @@ export const TitleForm = ({ initialData, courseId }: TitleFormProps) => {
           )}
         </Button>
       </div>
-      {!isEditing && <p className="mt-2 text-sm">{initialData.title}</p>}
+      {!isEditing && (
+        <p className={cn('mt-2 text-sm', !initialData.description && 'italic text-slate-500')}>
+          {initialData.description || 'No description'}
+        </p>
+      )}
       {isEditing && (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 space-y-4">
             <FormField
               control={form.control}
-              name="title"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
+                    <Textarea
                       disabled={isSubmitting}
-                      placeholder="e.g. 'Advanced web development'"
+                      placeholder="e.g. 'This course is about...'"
                       {...field}
                     />
                   </FormControl>

@@ -7,9 +7,7 @@ export const courseApi = {
       title
     })
   },
-  update(id: string, title: string): Promise<any> {
-    return axiosClient.patch(`/api/courses/${id}`, {
-      title
-    })
+  update(id: string, body: Course): Promise<any> {
+    return axiosClient.patch(`/api/courses/${id}`, body)
   }
 }
