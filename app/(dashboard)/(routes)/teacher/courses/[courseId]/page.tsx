@@ -3,7 +3,7 @@ import db from '@/lib/prismadb'
 import { auth } from '@clerk/nextjs'
 import { LayoutDashboard } from 'lucide-react'
 import { redirect } from 'next/navigation'
-import { DescriptionForm, TitleForm } from './components'
+import { DescriptionForm, ImageForm, TitleForm } from './components'
 
 export default async function CourseDetailPage({ params }: { params: { courseId: string } }) {
   const { userId } = auth()
@@ -48,6 +48,7 @@ export default async function CourseDetailPage({ params }: { params: { courseId:
           </div>
           <TitleForm initialData={course} courseId={course.id} />
           <DescriptionForm initialData={course} courseId={course.id} />
+          <ImageForm initialData={course} courseId={course.id} />
         </div>
       </div>
     </div>

@@ -1,20 +1,17 @@
 'use client'
 
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { Pencil } from 'lucide-react'
+import { Course } from '@prisma/client'
+import { useMutation } from '@tanstack/react-query'
+import { ImageIcon, Pencil, PlusCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
-import { useRouter } from 'next/navigation'
-import { useMutation } from '@tanstack/react-query'
-import { Course } from '@prisma/client'
+import Image from 'next/image'
+import * as z from 'zod'
 
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
-import { Button } from '@/components/ui/button'
 import { courseApi } from '@/api-client'
-import { cn } from '@/lib/utils'
-import { Textarea } from '@/components/ui/textarea'
+import { FileUpload } from '@/components/file-upload'
+import { Button } from '@/components/ui/button'
 
 interface ImageFormProps {
   initialData: Course
@@ -34,18 +31,9 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
 
   const router = useRouter()
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      imageUrl: initialData?.imageUrl || ''
-    }
-  })
-
   const updateCourseMutation = useMutation({
     mutationFn: (body: z.infer<typeof formSchema>) => courseApi.update(courseId, body as Course)
   })
-
-  const { isSubmitting, isValid } = form.formState
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     updateCourseMutation.mutate(values, {
@@ -65,47 +53,52 @@ export const ImageForm = ({ initialData, courseId }: ImageFormProps) => {
       <div className="flex items-center justify-between font-medium">
         Course title
         <Button onClick={toggleEdit} variant="ghost">
-          {isEditing ? (
-            <>Cancel</>
-          ) : (
+          {isEditing && <>Cancel</>}
+
+          {!isEditing && !initialData.imageUrl && (
+            <>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add an image
+            </>
+          )}
+
+          {!isEditing && initialData.imageUrl && (
             <>
               <Pencil className="mr-2 h-4 w-4" />
-              Edit title
+              Edit image
             </>
           )}
         </Button>
       </div>
-      {!isEditing && (
-        <p className={cn('mt-2 text-sm', !initialData.description && 'italic text-slate-500')}>
-          {initialData.description || 'No description'}
-        </p>
-      )}
-      {isEditing && (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 space-y-4">
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Textarea
-                      disabled={isSubmitting}
-                      placeholder="e.g. 'This course is about...'"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+
+      {!isEditing &&
+        (!initialData.imageUrl ? (
+          <div className="flex h-60 items-center justify-center rounded-md bg-slate-200">
+            <ImageIcon className="h-10 w-10 text-slate-500" />
+          </div>
+        ) : (
+          <div className="relative mt-2 aspect-video">
+            <Image
+              alt="Upload"
+              fill
+              className="rounded-md object-cover"
+              src={initialData.imageUrl}
             />
-            <div className="flex items-center gap-x-2">
-              <Button disabled={!isValid || isSubmitting} type="submit">
-                Save
-              </Button>
-            </div>
-          </form>
-        </Form>
+          </div>
+        ))}
+
+      {isEditing && (
+        <div>
+          <FileUpload
+            endpoint="courseImage"
+            onChange={(url) => {
+              if (url) {
+                onSubmit({ imageUrl: url })
+              }
+            }}
+          />
+          <div className="mt-4 text-xs text-muted-foreground">16:9 aspect ratio recommended</div>
+        </div>
       )}
     </div>
   )
